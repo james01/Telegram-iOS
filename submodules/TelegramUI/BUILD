@@ -500,6 +500,7 @@ swift_library(
         "//submodules/TelegramUI/Components/Chat/ChatSendAsContextMenu",
         "//submodules/TelegramUI/Components/Settings/PasskeysScreen",
         "//submodules/TelegramUI/Components/Gifts/GiftDemoScreen",
+        "//submodules/TelegramUI/Components/BubbleButton",
     ] + select({
         "@build_bazel_rules_apple//apple:ios_arm64": appcenter_targets,
         "//build-system:ios_sim_arm64": [],

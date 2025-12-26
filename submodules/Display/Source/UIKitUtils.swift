@@ -871,6 +871,10 @@ public extension CALayer {
         return makeBlurFilter()
     }
     
+    static func variableBlur() -> NSObject? {
+        return makeVariableBlurFilter()
+    }
+    
     static func luminanceToAlpha() -> NSObject? {
         return makeLuminanceToAlphaFilter()
     }
@@ -881,6 +885,10 @@ public extension CALayer {
     
     static func monochrome() -> NSObject? {
         return makeMonochromeFilter()
+    }
+    
+    static func alphaThreshold() -> NSObject? {
+        return makeAlphaThresholdFilter()
     }
 }
 

@@ -266,6 +266,10 @@ NSObject * _Nullable makeBlurFilter() {
     return [(id<GraphicsFilterProtocol>)NSClassFromString(@"CAFilter") filterWithName:@"gaussianBlur"];
 }
 
+NSObject * _Nullable makeVariableBlurFilter() {
+    return [(id<GraphicsFilterProtocol>)NSClassFromString(@"CAFilter") filterWithName:@"variableBlur"];
+}
+
 NSObject * _Nullable makeLuminanceToAlphaFilter() {
     return [(id<GraphicsFilterProtocol>)NSClassFromString(@"CAFilter") filterWithName:@"luminanceToAlpha"];
 }
@@ -276,6 +280,10 @@ NSObject * _Nullable makeColorInvertFilter() {
 
 NSObject * _Nullable makeMonochromeFilter() {
     return [(id<GraphicsFilterProtocol>)NSClassFromString(@"CAFilter") filterWithName:@"colorMonochrome"];
+}
+
+NSObject * _Nullable makeAlphaThresholdFilter() {
+    return [(id<GraphicsFilterProtocol>)NSClassFromString(@"CAFilter") filterWithName:@"alphaThreshold"];
 }
 
 static const void *layerDisableScreenshotsKey = &layerDisableScreenshotsKey;

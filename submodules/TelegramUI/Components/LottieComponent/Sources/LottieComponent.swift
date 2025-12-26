@@ -169,7 +169,7 @@ public final class LottieComponent: Component {
             }
         }
         
-        var isEffectivelyVisible: Bool {
+        public var isEffectivelyVisible: Bool {
             if !self.isVisible {
                 return false
             }

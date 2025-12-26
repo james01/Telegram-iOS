@@ -29,9 +29,11 @@ bool isViewPortalView(UIView * _Nonnull view);
 UIView * _Nullable getPortalViewSourceView(UIView * _Nonnull portalView);
 
 NSObject * _Nullable makeBlurFilter();
+NSObject * _Nullable makeVariableBlurFilter();
 NSObject * _Nullable makeLuminanceToAlphaFilter();
 NSObject * _Nullable makeColorInvertFilter();
 NSObject * _Nullable makeMonochromeFilter();
+NSObject * _Nullable makeAlphaThresholdFilter();
 
 void setLayerDisableScreenshots(CALayer * _Nonnull layer, bool disableScreenshots);
 bool getLayerDisableScreenshots(CALayer * _Nonnull layer);

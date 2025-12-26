@@ -390,16 +390,12 @@ public class GlassBackgroundView: UIView {
     }
     
     override public func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        if let nativeView = self.nativeView {
-            if let result = nativeView.hitTest(self.convert(point, to: nativeView), with: event) {
-                return result
-            }
+        guard isUserInteractionEnabled else { return nil }
+        if let nativeView {
+            return nativeView.hitTest(convert(point, to: nativeView), with: event)
         } else {
-            if let result = self.contentContainer.hitTest(self.convert(point, to: self.contentContainer), with: event) {
-                return result
-            }
+            return contentContainer.hitTest(convert(point, to: contentContainer), with: event)
         }
-        return nil
     }
         
     public func update(size: CGSize, cornerRadius: CGFloat, isDark: Bool, tintColor: TintColor, isInteractive: Bool = false, transition: ComponentTransition) {

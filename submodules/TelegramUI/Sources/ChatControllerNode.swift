@@ -51,6 +51,7 @@ import ChatThemeScreen
 import ChatTextInputPanelNode
 import ChatInputAccessoryPanel
 import ChatMessageTextBubbleContentNode
+import BubbleButton
 
 final class VideoNavigationControllerDropContentItem: NavigationControllerDropContentItem {
     let itemNode: OverlayMediaItemNode
@@ -3884,7 +3885,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         return nil
     }
     
-    func getAttachmentButton() -> UIView? {
+    func getAttachmentButton() -> BubbleButton? {
         if let textInputPanelNode = self.textInputPanelNode, self.inputPanelNode === textInputPanelNode {
             return textInputPanelNode.getAttachmentButton()
         }

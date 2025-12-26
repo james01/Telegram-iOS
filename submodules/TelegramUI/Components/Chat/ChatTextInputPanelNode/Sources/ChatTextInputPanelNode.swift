@@ -58,6 +58,7 @@ import ChatRecordingViewOnceButtonNode
 import ChatRecordingPreviewInputPanelNode
 import ChatInputContextPanelNode
 import RasterizedCompositionComponent
+import BubbleButton
 
 private let counterFont = Font.with(size: 14.0, design: .regular, traits: [.monospacedNumbers])
 
@@ -260,9 +261,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
     private let sendAsAvatarNode: AvatarNode
     private let sendAsCloseIconView: UIImageView
     
-    public let attachmentButton: HighlightTrackingButton
-    public let attachmentButtonBackground: GlassBackgroundView
-    public let attachmentButtonIcon: GlassBackgroundView.ContentImageView
+    public let attachmentButton: BubbleButton
     private var commentsButtonIcon: RasterizedCompositionMonochromeLayer?
     private var commentsButtonCenterIcon: UIImageView?
     private var commentsButtonContentsLayer: RasterizedCompositionImageLayer?
@@ -683,17 +682,10 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
         self.sendAsAvatarNode = AvatarNode(font: avatarPlaceholderFont(size: 16.0))
         self.sendAsCloseIconView = UIImageView()
         
-        self.attachmentButton = HighlightTrackingButton()
+        self.attachmentButton = BubbleButton()
         self.attachmentButton.accessibilityLabel = presentationInterfaceState.strings.VoiceOver_AttachMedia
         self.attachmentButton.accessibilityTraits = [.button]
         self.attachmentButton.isAccessibilityElement = true
-        
-        self.attachmentButtonBackground = GlassBackgroundView(frame: CGRect())
-        self.attachmentButtonBackground.contentView.addSubview(self.attachmentButton)
-        
-        self.attachmentButtonIcon = GlassBackgroundView.ContentImageView()
-        self.attachmentButtonIcon.isUserInteractionEnabled = false
-        self.attachmentButtonBackground.contentView.addSubview(self.attachmentButtonIcon)
         
         self.attachmentButtonDisabledNode = HighlightableButtonNode()
         self.searchLayoutClearButton = HighlightTrackingButton()
@@ -809,13 +801,13 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
         self.attachmentButton.highligthedChanged = { [weak self] highlighted in
             if let self {
                 if highlighted {
-                    self.attachmentButtonIcon.layer.removeAnimation(forKey: "opacity")
-                    self.attachmentButtonIcon.alpha = 0.4
-                    self.attachmentButtonIcon.layer.allowsGroupOpacity = true
+                    self.attachmentButton.iconView.layer.removeAnimation(forKey: "opacity")
+                    self.attachmentButton.iconView.alpha = 0.4
+                    self.attachmentButton.iconView.layer.allowsGroupOpacity = true
                 } else {
-                    self.attachmentButtonIcon.alpha = 1.0
-                    self.attachmentButtonIcon.layer.animateAlpha(from: 0.4, to: 1.0, duration: 0.2)
-                    self.attachmentButtonIcon.layer.allowsGroupOpacity = false
+                    self.attachmentButton.iconView.alpha = 1.0
+                    self.attachmentButton.iconView.layer.animateAlpha(from: 0.4, to: 1.0, duration: 0.2)
+                    self.attachmentButton.iconView.layer.allowsGroupOpacity = false
                 }
             }
         }
@@ -938,7 +930,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
         self.textInputContainerBackgroundView.contentView.addSubview(self.sendAsAvatarButtonNode.view)
         
         self.glassBackgroundContainer.contentView.addSubview(self.menuButton.view)
-        self.glassBackgroundContainer.contentView.addSubview(self.attachmentButtonBackground)
+        self.glassBackgroundContainer.contentView.addSubview(self.attachmentButton)
         self.glassBackgroundContainer.contentView.addSubview(self.attachmentButtonDisabledNode.view)
         
         self.glassBackgroundContainer.contentView.addSubview(self.startButton.view)
@@ -1533,7 +1525,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
             attachmentButtonAlpha = 0.0
         }
         
-        transition.updateAlpha(layer: self.attachmentButtonBackground.layer, alpha: attachmentButtonAlpha)
+        transition.updateAlpha(layer: self.attachmentButton.layer, alpha: attachmentButtonAlpha)
         self.attachmentButton.isEnabled = isMediaEnabled && !isRecording
         self.attachmentButton.accessibilityTraits = (!isSlowmodeActive || isMediaEnabled) ? [.button] : [.button, .notEnabled]
         self.attachmentButtonDisabledNode.isHidden = !isSlowmodeActive || isMediaEnabled
@@ -1803,18 +1795,18 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                 if let customLeftAction = self.customLeftAction {
                     switch customLeftAction {
                     case .empty, .toggleExpanded, .settings:
-                        self.attachmentButtonIcon.image = nil
-                        self.attachmentButtonIcon.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
+                        self.attachmentButton.iconView.image = nil
+                        self.attachmentButton.iconView.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
                     }
                 } else if interfaceState.interfaceState.mediaDraftState != nil {
-                    self.attachmentButtonIcon.image = UIImage(bundleImageName: "Chat/Context Menu/Delete")?.withRenderingMode(.alwaysTemplate)
-                    self.attachmentButtonIcon.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
+                    self.attachmentButton.iconView.image = UIImage(bundleImageName: "Chat/Context Menu/Delete")?.withRenderingMode(.alwaysTemplate)
+                    self.attachmentButton.iconView.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
                 } else if isEditingMedia {
-                    self.attachmentButtonIcon.image = PresentationResourcesChat.chatInputPanelEditAttachmentButtonImage(interfaceState.theme)
-                    self.attachmentButtonIcon.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
+                    self.attachmentButton.iconView.image = PresentationResourcesChat.chatInputPanelEditAttachmentButtonImage(interfaceState.theme)
+                    self.attachmentButton.iconView.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
                 } else {
-                    self.attachmentButtonIcon.image = PresentationResourcesChat.chatInputPanelAttachmentButtonImage(interfaceState.theme)
-                    self.attachmentButtonIcon.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
+                    self.attachmentButton.iconView.image = PresentationResourcesChat.chatInputPanelAttachmentButtonImage(interfaceState.theme)
+                    self.attachmentButton.iconView.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
                 }
                
                 self.sendActionButtons.updateTheme(theme: interfaceState.theme, wallpaper: interfaceState.chatWallpaper)
@@ -1843,18 +1835,18 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                     if let customLeftAction = self.customLeftAction {
                         switch customLeftAction {
                         case .empty, .toggleExpanded, .settings:
-                            self.attachmentButtonIcon.image = nil
-                            self.attachmentButtonIcon.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
+                            self.attachmentButton.iconView.image = nil
+                            self.attachmentButton.iconView.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
                         }
                     } else if interfaceState.interfaceState.mediaDraftState != nil {
-                        self.attachmentButtonIcon.image = UIImage(bundleImageName: "Chat/Context Menu/Delete")?.withRenderingMode(.alwaysTemplate)
-                        self.attachmentButtonIcon.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
+                        self.attachmentButton.iconView.image = UIImage(bundleImageName: "Chat/Context Menu/Delete")?.withRenderingMode(.alwaysTemplate)
+                        self.attachmentButton.iconView.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
                     } else if isEditingMedia {
-                        self.attachmentButtonIcon.image = PresentationResourcesChat.chatInputPanelEditAttachmentButtonImage(interfaceState.theme)
-                        self.attachmentButtonIcon.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
+                        self.attachmentButton.iconView.image = PresentationResourcesChat.chatInputPanelEditAttachmentButtonImage(interfaceState.theme)
+                        self.attachmentButton.iconView.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
                     } else {
-                        self.attachmentButtonIcon.image = PresentationResourcesChat.chatInputPanelAttachmentButtonImage(interfaceState.theme)
-                        self.attachmentButtonIcon.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
+                        self.attachmentButton.iconView.image = PresentationResourcesChat.chatInputPanelAttachmentButtonImage(interfaceState.theme)
+                        self.attachmentButton.iconView.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
                     }
                 }
             }
@@ -2004,7 +1996,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                 } else {
                     commentsButtonIcon = RasterizedCompositionMonochromeLayer()
                     self.commentsButtonIcon = commentsButtonIcon
-                    self.attachmentButtonBackground.contentView.layer.addSublayer(commentsButtonIcon)
+                    self.attachmentButton.glassBackground.contentView.layer.addSublayer(commentsButtonIcon)
                 }
                 
                 let commentsButtonCenterIcon: UIImageView
@@ -2013,7 +2005,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                 } else {
                     commentsButtonCenterIcon = UIImageView()
                     self.commentsButtonCenterIcon = commentsButtonCenterIcon
-                    self.attachmentButtonBackground.contentView.addSubview(commentsButtonCenterIcon)
+                    self.attachmentButton.glassBackground.contentView.addSubview(commentsButtonCenterIcon)
                     commentsButtonCenterIcon.image = UIImage(bundleImageName: "Chat/Input/Text/CommensCross")?.withRenderingMode(.alwaysTemplate)
                 }
                 commentsButtonCenterIcon.tintColor = interfaceState.theme.chat.inputPanel.panelControlColor
@@ -2071,7 +2063,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                     } else {
                         attachmentButtonUnseenIcon = UIImageView()
                         self.attachmentButtonUnseenIcon = attachmentButtonUnseenIcon
-                        self.attachmentButtonBackground.contentView.addSubview(attachmentButtonUnseenIcon)
+                        self.attachmentButton.glassBackground.contentView.addSubview(attachmentButtonUnseenIcon)
                         attachmentButtonUnseenIcon.image = generateStretchableFilledCircleImage(diameter: 10.0, color: .white)?.withRenderingMode(.alwaysTemplate)
                     }
                     attachmentButtonUnseenIcon.tintColor = interfaceState.theme.list.itemAccentColor
@@ -2434,11 +2426,11 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                 containerSize: CGSize(width: 40.0, height: 40.0)
             )
             if let dotAnimationView = dotAnimation.view as? LottieComponent.View {
-                self.attachmentButtonBackground.contentView.addSubview(dotAnimationView)
-                dotAnimationView.frame = dotAnimationSize.centered(in: self.attachmentButtonBackground.contentView.bounds)
+                self.attachmentButton.glassBackground.contentView.addSubview(dotAnimationView)
+                dotAnimationView.frame = dotAnimationSize.centered(in: self.attachmentButton.glassBackground.contentView.bounds)
                 
-                self.attachmentButtonIcon.layer.opacity = 0.0
-                self.attachmentButtonIcon.layer.transform = CATransform3DMakeScale(0.001, 0.001, 1.0)
+                self.attachmentButton.iconView.layer.opacity = 0.0
+                self.attachmentButton.iconView.layer.transform = CATransform3DMakeScale(0.001, 0.001, 1.0)
                 dotAnimationView.playOnce(completion: { [weak self, weak dotAnimationView] in
                     guard let self else {
                         return
@@ -2453,8 +2445,8 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                         transition.setScale(view: dotAnimationView, scale: 0.001)
                     }
                     
-                    transition.setAlpha(view: self.attachmentButtonIcon, alpha: 1.0)
-                    transition.setScale(view: self.attachmentButtonIcon, scale: 1.0)
+                    transition.setAlpha(view: self.attachmentButton.iconView, alpha: 1.0)
+                    transition.setScale(view: self.attachmentButton.iconView, scale: 1.0)
                 })
             }
         }
@@ -2672,7 +2664,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                 if let audioRecordingRemoveAnimationState = self.audioRecordingRemoveAnimationState, case .recordingToAttachButton = audioRecordingRemoveAnimationState {
                     self.audioRecordingRemoveAnimationState = nil
                     
-                    let sourceFrame = audioRecordingDotView.convert(audioRecordingDotView.bounds, to: self.attachmentButtonBackground.contentView)
+                    let sourceFrame = audioRecordingDotView.convert(audioRecordingDotView.bounds, to: self.attachmentButton.glassBackground.contentView)
                     audioRecordingDotView.removeFromSuperview()
                     
                     let dotAnimation = ComponentView<Empty>()
@@ -2687,13 +2679,13 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                         containerSize: CGSize(width: 40.0, height: 40.0)
                     )
                     if let dotAnimationView = dotAnimation.view as? LottieComponent.View {
-                        self.attachmentButtonBackground.contentView.addSubview(dotAnimationView)
+                        self.attachmentButton.glassBackground.contentView.addSubview(dotAnimationView)
                         dotAnimationView.frame = dotAnimationSize.centered(in: sourceFrame)
                         
-                        transition.updatePosition(layer: dotAnimationView.layer, position: self.attachmentButtonBackground.contentView.bounds.center)
+                        transition.updatePosition(layer: dotAnimationView.layer, position: self.attachmentButton.glassBackground.contentView.bounds.center)
                         
-                        self.attachmentButtonIcon.layer.opacity = 0.0
-                        self.attachmentButtonIcon.layer.transform = CATransform3DMakeScale(0.001, 0.001, 1.0)
+                        self.attachmentButton.iconView.layer.opacity = 0.0
+                        self.attachmentButton.iconView.layer.transform = CATransform3DMakeScale(0.001, 0.001, 1.0)
                         dotAnimationView.playOnce(completion: { [weak self, weak dotAnimationView] in
                             guard let self else {
                                 return
@@ -2708,8 +2700,8 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                                 transition.setScale(view: dotAnimationView, scale: 0.001)
                             }
                             
-                            transition.setAlpha(view: self.attachmentButtonIcon, alpha: 1.0)
-                            transition.setScale(view: self.attachmentButtonIcon, scale: 1.0)
+                            transition.setAlpha(view: self.attachmentButton.iconView, alpha: 1.0)
+                            transition.setScale(view: self.attachmentButton.iconView, scale: 1.0)
                         })
                     }
                 } else {
@@ -3274,20 +3266,21 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
             transition.updateFrame(layer: self.searchLayoutClearButtonIcon.layer, frame: clearIconFrame.offsetBy(dx: clearButtonFrame.minX, dy: clearButtonFrame.minY))
         }
         
-        let attachmentButtonFrame = CGRect(origin: CGPoint(x: attachmentButtonX, y: textInputFrame.maxY - 40.0), size: CGSize(width: 40.0, height: 40.0))
+        let attachmentButtonFrame = CGRect(
+            origin: CGPoint(x: attachmentButtonX, y: textInputFrame.maxY - 40.0),
+            size: CGSize(width: 40.0, height: 40.0)
+        )
         attachmentButtonX += 40.0 + 6.0
-        self.attachmentButtonBackground.update(size: attachmentButtonFrame.size, cornerRadius: attachmentButtonFrame.height * 0.5, isDark: interfaceState.theme.overallDarkAppearance, tintColor: .init(kind: .panel, color: interfaceState.theme.chat.inputPanel.inputBackgroundColor.withMultipliedAlpha(0.7)), isInteractive: true, transition: ComponentTransition(transition))
-        
-        transition.updateFrame(layer: self.attachmentButtonBackground.layer, frame: attachmentButtonFrame)
-        transition.updateFrame(layer: self.attachmentButton.layer, frame: CGRect(origin: CGPoint(), size: attachmentButtonFrame.size))
-        transition.updateFrame(node: self.attachmentButtonDisabledNode, frame: self.attachmentButtonBackground.frame)
-        
-        if let image = self.attachmentButtonIcon.image {
-            let attachmentButtonIconFrame = CGRect(origin: CGPoint(x: floor((attachmentButtonFrame.width - image.size.width) * 0.5), y: floor((attachmentButtonFrame.height - image.size.height) * 0.5)), size: image.size)
-            let transition = ComponentTransition(transition)
-            transition.setPosition(view: self.attachmentButtonIcon, position: attachmentButtonIconFrame.center)
-            transition.setBounds(view: self.attachmentButtonIcon, bounds: CGRect(origin: CGPoint(), size: attachmentButtonIconFrame.size))
-        }
+        self.attachmentButton.update(
+            size: attachmentButtonFrame.size,
+            cornerRadius: attachmentButtonFrame.height * 0.5,
+            isDark: interfaceState.theme.overallDarkAppearance,
+            tintColor: .init(kind: .panel, color: interfaceState.theme.chat.inputPanel.inputBackgroundColor.withMultipliedAlpha(0.7)),
+            isInteractive: true,
+            transition: ComponentTransition(transition)
+        )
+        transition.updatePosition(layer: self.attachmentButton.layer, position: attachmentButtonFrame.center)
+        transition.updateFrame(node: self.attachmentButtonDisabledNode, frame: self.attachmentButton.frame)
         
         if let context = self.context, let interfaceState = self.presentationInterfaceState, let editMessageState = interfaceState.editMessageState, let updatedMediaReference = editMessageState.mediaReference {
             let attachmentImageNode: TransformImageNode
@@ -5356,13 +5349,13 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
         return nil
     }
     
-    public func getAttachmentButton() -> UIView {
+    public func getAttachmentButton() -> BubbleButton {
         return self.attachmentButton
     }
     
     public func frameForAttachmentButton() -> CGRect? {
-        if !self.attachmentButtonBackground.alpha.isZero {
-            return self.attachmentButtonBackground.frame.insetBy(dx: 0.0, dy: -4.0).offsetBy(dx: 0.0, dy: 0.0)
+        if !self.attachmentButton.alpha.isZero {
+            return self.attachmentButton.frame.insetBy(dx: 0.0, dy: -4.0).offsetBy(dx: 0.0, dy: 0.0)
         }
         return nil
     }

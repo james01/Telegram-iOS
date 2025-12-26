@@ -121,6 +121,8 @@ protocol ItemListSwitchNodeImpl {
     var positiveContentColor: UIColor { get set }
     var negativeContentColor: UIColor { get set }
     
+    var valueUpdated: ((Bool) -> Void)? { get set }
+    
     var isOn: Bool { get }
     func setOn(_ value: Bool, animated: Bool)
 }
@@ -230,7 +232,9 @@ public class ItemListSwitchItemNode: ListViewItemNode, ItemListItemNode {
     override public func didLoad() {
         super.didLoad()
         
-        (self.switchNode.view as? UISwitch)?.addTarget(self, action: #selector(self.switchValueChanged(_:)), for: .valueChanged)
+        self.switchNode.valueUpdated = { value in
+            self.switchValueChanged(value)
+        }
         self.switchGestureNode.view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.tapGesture(_:))))
     }
     
@@ -498,19 +502,14 @@ public class ItemListSwitchItemNode: ListViewItemNode, ItemListItemNode {
                         }
                     }
                     
-                    if let switchView = strongSelf.switchNode.view as? UISwitch {
-                        if strongSelf.switchNode.bounds.size.width.isZero {
-                            switchView.sizeToFit()
-                        }
-                        let switchSize = switchView.bounds.size
-                        
-                        transition.updateFrame(node: strongSelf.switchNode, frame: CGRect(origin: CGPoint(x: params.width - params.rightInset - switchSize.width - 15.0, y: floor((contentSize.height - switchSize.height) / 2.0)), size: switchSize))
-                        strongSelf.switchGestureNode.frame = strongSelf.switchNode.frame
-                        if switchView.isOn != item.value {
-                            switchView.setOn(item.value, animated: animated)
-                        }
-                        switchView.isUserInteractionEnabled = item.enableInteractiveChanges
+                    let switchNode = strongSelf.switchNode
+                    let switchSize = switchNode.calculateSizeThatFits(contentSize)
+                    transition.updateFrame(node: switchNode, frame: CGRect(origin: CGPoint(x: params.width - params.rightInset - switchSize.width - 15.0, y: floor((contentSize.height - switchSize.height) / 2.0)), size: switchSize))
+                    strongSelf.switchGestureNode.frame = switchNode.frame
+                    if switchNode.isOn != item.value {
+                        switchNode.setOn(item.value, animated: animated)
                     }
+                    switchNode.isUserInteractionEnabled = item.enableInteractiveChanges
                     strongSelf.switchGestureNode.isHidden = item.enableInteractiveChanges && item.enabled
                     
                     if item.displayLocked {
@@ -656,17 +655,16 @@ public class ItemListSwitchItemNode: ListViewItemNode, ItemListItemNode {
         self.layer.animateAlpha(from: 1.0, to: 0.0, duration: 0.15, removeOnCompletion: false)
     }
     
-    @objc private func switchValueChanged(_ switchView: UISwitch) {
+    @objc private func switchValueChanged(_ value: Bool) {
         if let item = self.item {
-            let value = switchView.isOn
             item.updated(value)
         }
     }
     
     @objc private func tapGesture(_ recognizer: UITapGestureRecognizer) {
-        if let item = self.item, let switchView = self.switchNode.view as? UISwitch, case .ended = recognizer.state {
+        if let item = self.item, case .ended = recognizer.state {
             if item.enabled && !item.displayLocked {
-                let value = switchView.isOn
+                let value = switchNode.isOn
                 item.updated(!value)
             } else {
                 item.activatedWhileDisabled()

@@ -1,19 +1,6 @@
 import Foundation
 import UIKit
 
-struct ViewportItemSpring {
-    let stiffness: CGFloat
-    let damping: CGFloat
-    let mass: CGFloat
-    var velocity: CGFloat = 0.0
-    
-    init(stiffness: CGFloat, damping: CGFloat, mass: CGFloat) {
-        self.stiffness = stiffness
-        self.damping = damping
-        self.mass = mass
-    }
-}
-
 private func a(_ a1: CGFloat, _ a2: CGFloat) -> CGFloat
 {
     return 1.0 - 3.0 * a2 + 3.0 * a1

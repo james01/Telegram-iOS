@@ -19,6 +19,7 @@ import ChatSendMessageActionUI
 import MinimizedContainer
 import ComponentFlow
 import GlassBackgroundComponent
+import BubbleButton
 
 public enum AttachmentButtonType: Equatable {
     case gallery
@@ -416,7 +417,7 @@ public class AttachmentController: ViewController, MinimizableController {
         return self.mainController.isFullscreen
     }
     
-    public weak var attachmentButton: UIView?
+    public weak var attachmentButton: BubbleButton?
         
     private final class Node: ASDisplayNode {
         private weak var controller: AttachmentController?
@@ -1059,7 +1060,8 @@ public class AttachmentController: ViewController, MinimizableController {
                     let sourceButtonFrame = attachmentButton.convert(attachmentButton.bounds, to: self.view)
                     let sourceButtonScale = sourceButtonFrame.width / targetFrame.width
                     
-                    if let sourceGlassView = findParentGlassBackgroundView(attachmentButton), let glassParams = sourceGlassView.params {
+                    let sourceGlassView = attachmentButton.glassBackground
+                    if let glassParams = sourceGlassView.params {
                         let containerView = ClipContainerView()
                         containerView.update(bounds: CGRect(origin: CGPoint(x: 0.0, y: (targetFrame.height - targetFrame.width) * 0.5), size: CGSize(width: targetFrame.width, height: targetFrame.width)), topCornerRadius: targetFrame.width * 0.5, bottomCornerRadius: targetFrame.width * 0.5, boundsTransition: .immediate, cornersTransition: .immediate)
                         containerView.frame = targetFrame
@@ -1164,7 +1166,8 @@ public class AttachmentController: ViewController, MinimizableController {
                     let targetButtonFrame = attachmentButton.convert(attachmentButton.bounds, to: self.view)
                     let targetButtonScale = targetButtonFrame.width / initialFrame.width
                     
-                    if let sourceGlassView = findParentGlassBackgroundView(attachmentButton), let glassParams = sourceGlassView.params {
+                    let sourceGlassView = attachmentButton.glassBackground
+                    if let glassParams = sourceGlassView.params {
                         let containerView = ClipContainerView()
                         containerView.frame = initialFrame
                         containerView.update(bounds: CGRect(origin: .zero, size: initialFrame.size), topCornerRadius: 38.0, bottomCornerRadius: layout.deviceMetrics.screenCornerRadius - 2.0, boundsTransition: .immediate, cornersTransition: .immediate)
@@ -1680,15 +1683,6 @@ public class AttachmentController: ViewController, MinimizableController {
         }
         return snapshotView
     }
-}
-
-private func findParentGlassBackgroundView(_ view: UIView) -> GlassBackgroundView? {
-    if let view = view as? GlassBackgroundView {
-        return view
-    } else if let superview = view.superview {
-        return findParentGlassBackgroundView(superview)
-    }
-    return nil
 }
 
 private final class ClipContainerView: UIView {
