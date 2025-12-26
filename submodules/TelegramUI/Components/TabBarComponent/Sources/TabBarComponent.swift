@@ -368,7 +368,10 @@ public final class FallbackTabBar: UIControl, UIGestureRecognizerDelegate {
         
         let tx: CGFloat = .lerpRange(slideAnimator.value, 0, CGFloat(items.count - 1), -1, 1) * scaleAnimator.value
         
-        let paletteCenter = CGPoint(x: bounds.midX + tx, y: bounds.midY)
+        let paletteCenter = CGPoint(
+            x: bounds.midX + tx,
+            y: bounds.maxY.addingProduct(-0.5, geo.paletteBounds.height)
+        )
         let paletteFrame = CGRect(
             center: paletteCenter,
             size: geo.paletteBounds.size
