@@ -207,6 +207,9 @@ public final class FallbackTabBar: UIControl, UIGestureRecognizerDelegate {
     private let lensFillView = UIView()
     private let lensShadingView = LensShadingView()
     
+    private let contextGestureSourceView = ContextControllerSourceView()
+    private var itemWithActiveContextGesture: Int?
+    
     private var geo = Geometry()
     
     private var component: TabBarComponent?
@@ -278,6 +281,50 @@ public final class FallbackTabBar: UIControl, UIGestureRecognizerDelegate {
         
         // Lens shading view
         addSubview(lensShadingView)
+        
+        // Context gesture source view
+        contextGestureSourceView.isGestureEnabled = true
+        contextGestureSourceView.customActivationProgress = { _, _ in }
+        contextGestureSourceView.isUserInteractionEnabled = false
+        addSubview(contextGestureSourceView)
+        
+        if let gesture = contextGestureSourceView.contextGesture {
+            addGestureRecognizer(gesture)
+        }
+        
+        contextGestureSourceView.shouldBegin = { [weak self] point in
+            guard let self else { return false }
+            if let index = selectedIndex(at: point), items.indices.contains(index) {
+                if items[index].contextAction != nil {
+                    itemWithActiveContextGesture = index
+                    return true
+                }
+            }
+            return false
+        }
+        
+        contextGestureSourceView.activated = { [weak self] gesture, _ in
+            guard let self, let index = itemWithActiveContextGesture else {
+                gesture.cancel()
+                return
+            }
+            
+            cancelTracking(with: nil)
+            
+            // Determine which view is currently visible for the item
+            let targetView: ItemView
+            if index == selectedTabIndex {
+                targetView = gooSolidItemViews[index]
+            } else {
+                targetView = itemViews[index]
+            }
+            
+            if let contextContainer = targetView.contextContainerView {
+                items[index].contextAction?(gesture, contextContainer)
+            } else {
+                gesture.cancel()
+            }
+        }
         
         // Pan recognizer
         panRecognizer.addTarget(self, action: #selector(handlePan))
@@ -363,6 +410,9 @@ public final class FallbackTabBar: UIControl, UIGestureRecognizerDelegate {
                 transition: .immediate
             )
         }
+        
+        // Context gesture source view
+        contextGestureSourceView.frame = bounds
         
         // Palette view
         let paletteMaxScaleIncrease: CGFloat = 0.04
@@ -807,6 +857,10 @@ extension FallbackTabBar {
         
         override func layoutSubviews() {
             updateComponent()
+        }
+        
+        var contextContainerView: ContextExtractedContentContainingView? {
+            return (componentView.view as? ItemComponent.View)?.contextContainerView
         }
         
         func playSelectionAnimation(completion: (() -> Void)? = nil) {
